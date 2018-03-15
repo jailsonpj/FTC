@@ -16,7 +16,7 @@ def conta_dig(cpf_novo,peso):#faz a validação dos digitos conforme os pesos
     return digito
 
 def valida_cpf(cpf):
-    padrao = re.compile(r'[0-9]{3}.[0-9]{3}.[0-9]{3}-[0-9]{2}$') #valida quantidade de numeros
+    padrao = re.compile(r'[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}$') #valida quantidade de numeros
     if(re.match(padrao,cpf)):
         cpf_novo = modifica_padrao(cpf)
 
@@ -32,7 +32,7 @@ def valida_cpf(cpf):
         return False
 
 def valida_cnpj(cnpj):
-    padrao = re.compile(r'[0-9]{2}.[0-9]{3}.[0-9]{3}/[0-9]{4}-[0-9]{2}$')
+    padrao = re.compile(r'[0-9]{2}\.[0-9]{3}\.[0-9]{3}/[0-9]{4}-[0-9]{2}$')
     if(re.match(padrao,cnpj)):
         cnpj_novo = modifica_padrao(cnpj)
 
@@ -49,7 +49,7 @@ def valida_cnpj(cnpj):
         return False
 
 def valida_data(data):
-    padrao = re.compile(r'[0-9]{4}.[0-9]{2}.[0-9]{2}$')
+    padrao = re.compile(r'[0-9]{4}\.[0-9]{2}\.[0-9]{2}$')
     if(re.match(padrao,data)):
         lista = data.split('.')
         ano = int(lista[0])
@@ -102,34 +102,87 @@ def valida_horas(horas):
         return False
 
 def valida_preco(preco):
-    #padrao = re.compile(r'^[0-9]*.[0-9]{2}?:,?:[0-9]**$')
-    precos = list(preco)
-    print(precos)
+    padrao = re.compile(r'\[[0-9]*\.[0-9]{2},[0-9]*\.[0-9]{2}\]$')
+    if(re.match(padrao,preco)):
+        return True
+    else:
+        return False
 
-def validar_codigo(codigo):
-    padrao = re.compile(r'[0-9]{9}-[a-zA-Z0-9]{5}-[0-9]*[02468]{3}$')
+def padrao_cod_num(codigo):
+    padrao = re.compile(r'[0-9]{9}$')
+    if(re.match(padrao,codigo)):
+        return True
+    else:
+        return False
+
+def padrao_cod_letranum(codigo):
+    padrao = re.compile(r'[a-z0-9]{5}$')
+    if(re.match(padrao,codigo)):
+        return True
+    else:
+        return False
+
+def padrao_num_par(codigo):
+    padrao = re.compile(r'[0-9]*[02468]{3}$')
+    if(re.match(padrao,codigo)):
+        return True
+    else:
+        return False
+
+def padrao_num_binario(codigo):
+    padrao = re.compile(r'[0-9]*[01]{3}$')
     if(re.match(padrao,codigo)):
         return True
     else:
         return False
 
 
+def validar_codigo(codigo):
+    lista = codigo.split('-')
+    valido = []
+    if(len(lista)<3 or len(lista)>4):
+        return False
+    if(len(lista) == 3):
+        valido.append(padrao_cod_num(lista[0]))
+        valido.append(padrao_cod_letranum(lista[1]))
+        valido.append(padrao_num_par(lista[2]))
+
+        if(valido[0] == True and valido[1] ==  True and valido[2] == True):
+            return True
+        else:
+            return False
+    if(len(lista) == 4):
+        valido.append(padrao_cod_num(lista[0]))
+        valido.append(padrao_cod_letranum(lista[1]))
+        valido.append(padrao_num_par(lista[2]))
+        valido.append(padrao_num_binario(lista[3]))
+
+        if(valido[0] == True and valido[1] ==  True and valido[2] == True and valido[3]):
+            return True
+        else:
+            return False
+
+
 def processamento(entrada):
     lista = entrada.split(' ')
     saida = []
-
+    flag = True
     if(len(lista)<6 or len(lista) > 6):
         return False
+
     saida.append(valida_cpf(lista[0]))
     saida.append(valida_cnpj(lista[1]))
     saida.append(valida_data(lista[2]))
     saida.append(valida_horas(lista[3]))
     saida.append(valida_preco(lista[4]))
-    saida.append(validar_codigo(lista[5])
-    print(lista)
+    saida.append(validar_codigo(lista[5]))
+    for i in range(6):
+        if(saida[i] != True):
+            flag = False
+    return flag
 
-    '''if(saida[0] == True and saida[1]== True):
-        print("aceito")'''
-
-entrada = input()
-processamento(entrada)
+try:
+    entrada = input()
+    print(processamento(entrada))
+except(EOFError):
+    print(True)
